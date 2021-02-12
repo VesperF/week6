@@ -5,14 +5,70 @@ window.addEventListener('DOMContentLoaded', async function(event) {
   // post data to Firestore. For best results, use square images
   // from Unsplash, e.g. https://unsplash.com/s/photos/tacos?orientation=squarish
   // Right-click and "copy image address"
+
   // - Begin by using .querySelector to select the form
   //   element, add an event listener to the 'submit' event,
   //   and preventing the default behavior.
+
+  let form = document.querySelector('form')
+
+  let firestoreResults = await db.collection('posts').get()
+
+  console.log(firestoreResults.docs)
+
+  for(let i=0; i< firestoreResults.docs.length; i++) {
+    let post = firestoreResults.docs[i]
+
+    console.log(post.id)
+    console.log(post.data())
+
+    document.querySelector('.posts').insertAdjacentHTML('beforeend', `
+    <div class="md:mt-16 mt-8 space-y-8">
+      <div class="md:mx-0 mx-4">
+          <span class="font-bold text-xl">${post.username}</span>
+      </div>
+    
+      <div>
+          <img src="${post.imageUrl}" class="w-full">
+      </div>
+     
+      <div class="text-3xl md:mx-0 mx-4">
+        <button class="like-button">❤️</button>
+        <span class="likes">0</span>
+      </div>
+    </div>
+    `)
+    
+  }
+
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault()
+    // console.log('prevented default')
+  
+
   // - Using the "db" variable, talk to Firestore. When the form is
   //   submitted, send the data entered to Firestore by using 
-  //   db.collection('posts').add(). Along withthe username and image 
+  //   db.collection('posts').add(). 
+  // Along withthe username and image 
   //   URL, add a "likes" field and set it to 0; we'll use this later.
+
+  let usernameInput = document.querySelector('#username')
+  let imageUrlInput = document.querySelector('#image-url')
+
+  console.log(usernameInput.value)
+  console.log(imageUrlInput.value)
+
   // - Verify (in Firebase) that records are being added.
+
+  let result = await db.collection('posts').add({
+    imageUrl: imageUrlInput.value,
+    username: usernameInput.value,
+    likes: 0
+  })
+
+  console.log(result)
+  })
+  
   
   // Step 2: Read existing posts from Firestore and display them
   // when the page is loaded
